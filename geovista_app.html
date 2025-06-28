@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GeoVista</title>
+  <style>
+    :root {
+      --bg-light: lavender;
+      --bg-dark: #1e1e2f;
+      --text-light: #2f0032;
+      --text-dark: #f0eaff;
+      --card-light: #f5e9ff;
+      --card-dark: #2a2a3d;
+      --accent: #802cb0;
+      --accent-hover: #5c2b8c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header.geovista-header {
+      padding: 2rem 1rem 1rem;
+      text-align: center;
+      color: var(--accent);
+      background-color: transparent;
+    }
+
+    .geovista-header .brand-name {
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .geovista-header .globe-icon {
+      width: 40px;
+      height: 40px;
+      fill: var(--accent);
+      transition: transform 0.3s ease, fill 0.3s ease;
+    }
+
+    .geovista-header .globe-icon:hover {
+      transform: scale(1.1);
+      fill: var(--accent-hover);
+    }
+
+    .geovista-header .tagline {
+      margin-top: 0.5rem;
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: #391ab8;
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      font-size: 1.8rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      z-index: 999;
+      display: none;
+      cursor: pointer;
+    }
+
+    aside.sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: var(--accent);
+      color: white;
+      padding: 1rem;
+      position: fixed;
+      left: 0;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar h2 {
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.1rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .sidebar a:hover {
+      background: var(--accent-hover);
+    }
+
+    .main-content {
+      margin-left: 220px;
+      padding: 2rem;
+      transition: margin-left 0.3s ease;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .controls input,
+    .controls select {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 180px;
+    }
+
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      overflow-x: auto;
+    }
+
+    body.vertical-scroll .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      overflow-x: unset;
+    }
+
+    .country-card {
+      background: var(--card-light);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      transition: transform 0.2s ease, background 0.3s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 250px;
+      flex-shrink: 0;
+    }
+
+    body.dark .country-card {
+      background: var(--card-dark);
+    }
+
+    .country-card:hover {
+      transform: scale(1.03);
+    }
+
+    .country-card img {
+      width: 60px;
+      height: auto;
+      margin-bottom: 1rem;
+    }
+
+    .country-card h3 {
+      margin: 0.5rem 0;
+      color: var(--accent);
+    }
+
+    .country-card p {
+      margin: 0.3rem 0;
+      font-size: 0.95rem;
+    }
+
+    .pagination {
+      margin-top: 2rem;
+      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+    }
+
+    .pagination button {
+      padding: 0.5rem 0.75rem;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background-color: var(--accent-hover);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+      z-index: 98;
+      display: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar.open ~ #overlay {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0%);
+      }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .sidebar.open ~ .main-content {
+        margin-left: 200px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+  <aside class="sidebar" id="sidebar">
+    <h2>GeoVista</h2>
+    <a onclick="showSection('home')">🏠 Home</a>
+    <a onclick="showSection('explore')">🌎 Explore</a>
+    <a onclick="showSection('about')">ℹ️ About</a>
+    <a onclick="toggleTheme()">🌙 Toggle Theme</a>
+    <a onclick="toggleScroll()">↔️ Toggle Scroll Mode</a>
+  </aside>
+
+  <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+  <div class="main-content">
+    <header class="geovista-header">
+      <h1 class="brand-name">
+        Geo
+        <svg class="globe-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
+            10-4.48 10-10S17.52 2 12 2zm7.93 9h-3.02a15.78
+            15.78 0 00-1.21-4.72A8.005 8.005 0 0119.93
+            11zm-5.14 0H9.21a13.77 13.77 0 011.9-5.86c.1
+            0 .19.01.29.01s.19 0 .29-.01A13.77 13.77 0 0114.79
+            11zM12 4c.34 0 .67.02 1 .05a15.96 15.96 0 00-2
+            0C11.33 4.02 11.66 4 12 4zM8.3 6.28A15.78 15.78 0
+            007.09 11H4.07a8.005 8.005 0 014.23-4.72zM4.07
+            13h3.02a15.78 15.78 0 001.21 4.72A8.005 8.005 0
+            014.07 13zm5.14 0h3.58a13.77 13.77 0 01-1.9
+            5.86c-.1 0-.19-.01-.29-.01s-.19 0-.29.01A13.77
+            13.77 0 019.21 13zm2.79 6a15.96 15.96 0 002
+            0c-.33.03-.66.05-1 .05s-.67-.02-1-.05zm3.7-1.28A15.78
+            15.78 0 0016.91 13h3.02a8.005 8.005 0
+            01-4.23 4.72z"/>
+        </svg>
+        Vista
+      </h1>
+      <p class="tagline">Explore the Earth, One Detail at a Time.</p>
+    </header>
+
+    <div id="home" class="section active">
+      <p>Welcome to GeoVista — your elegant gateway into the world of nations.</p>
+    </div>
+
+    <div id="explore" class="section">
+      <div class="controls">
+        <input type="text" id="search" placeholder="Search by name..." />
+        <select id="region-filter">
+          <option value="">All Regions</option>
+          <option>Africa</option>
+          <option>Americas</option>
+          <option>Asia</option>
+          <option>Europe</option>
+          <option>Oceania</option>
+        </select>
+        <select id="sort">
+          <option value="">Sort by</option>
+          <option value="asc">Population ↑</option>
+          <option value="desc">Population ↓</option>
+        </select>
+      </div>
+      <div class="cards-container" id="cards"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+    <div id="about" class="section">
+      <h1>About GeoVista</h1>
+      <p>GeoVista is your stylish gateway into the world's data — powered by RESTCountries API.
+        <br>
+        ©SuccessAmamba2025</p>
+    </div>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
+
+    function toggleScroll() {
+      document.body.classList.toggle('vertical-scroll');
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      sidebar.classList.toggle('open');
+      overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+    }
+
+    const API_URL = 'https://restcountries.com/v3.1/all?fields=name,capital,region,flags,population';
+    let countries = [], filtered = [], currentPage = 1, perPage = 10;
+
+    async function fetchData() {
+      const res = await fetch(API_URL);
+      countries = await res.json();
+      filtered = [...countries];
+      render();
+    }
+
+    function render() {
+      const start = (currentPage - 1) * perPage;
+      const end = start + perPage;
+      const visible = filtered.slice(start, end);
+
+      document.getElementById('cards').innerHTML = visible.map(c => `
+        <div class="country-card">
+          <img src="${c.flags.svg}" alt="Flag of ${c.name.common}" />
+          <h3>${c.name.common}</h3>
+          <p><strong>Capital:</strong> ${c.capital ? c.capital[0] : 'N/A'}</p>
+          <p><strong>Region:</strong> ${c.region}</p>
+          <p><strong>Population:</strong> ${c.population.toLocaleString()}</p>
+        </div>
+      `).join('');
+
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(filtered.length / perPage);
+      document.getElementById('pagination').innerHTML = Array.from({ length: totalPages }, (_, i) => `
+        <button class="${i + 1 === currentPage ? 'active' : ''}" onclick="goToPage(${i + 1})">${i + 1}</button>
+      `).join('');
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      render();
+    }
+
+    function filterAndSort() {
+      const name = document.getElementById('search').value.toLowerCase();
+      const region = document.getElementById('region-filter').value;
+      const sort = document.getElementById('sort').value;
+
+      filtered = countries.filter(c =>
+        c.name.common.toLowerCase().includes(name) &&
+        (!region || c.region === region)
+      );
+
+      if (sort === 'asc') {
+        filtered.sort((a, b) => a.population - b.population);
+      } else if (sort === 'desc') {
+        filtered.sort((a, b) => b.population - a.population);
+      }
+
+      currentPage = 1;
+      render();
+    }
+
+    document.getElementById('search').addEventListener('input', filterAndSort);
+    document.getElementById('region-filter').addEventListener('change', filterAndSort);
+    document.getElementById('sort').addEventListener('change', filterAndSort);
+
+    fetchData();
+  </script>
+</body>
+</html>
