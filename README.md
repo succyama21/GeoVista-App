@@ -53,8 +53,6 @@ country-explorer/
 ├── index.html
 ├── styles.css
 ├── script.js
-├── assets/
-│   └── screenshot.png
 ├── README.md
 └── LICENSE
 ```
