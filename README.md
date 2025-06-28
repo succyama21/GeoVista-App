@@ -19,16 +19,6 @@
 
 ---
 
-## 📸 Screenshot
-
-<img src="(./GeoVista/IMG-20250628-WA0007.jpg)" > 
-<img src="(./GeoVista/IMG-20250628-WA0008.jpg)">
-<img src="(./GeoVista/IMG-20250628-WA0009.jpg)">
-<img src="(./GeoVista/IMG-20250628-WA0010.jpg)">
-<img src="(./GeoVista/IMG-20250628-WA0011.jpg)">
-
----
-
 ## 🛠️ Setup Instructions
 
 To run the Country Explorer App locally:
