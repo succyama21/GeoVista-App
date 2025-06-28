@@ -79,5 +79,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ## 👩🏽‍💻 Author
 
 **Success Amamba**  
-Student | Fashion Designer | Aspiring Full-Stack Web Developer  
+Student | Aspiring Full-Stack Web Developer  
 🪄 Passionate about creativity, code, and empowering visual storytelling through digital experiences.
